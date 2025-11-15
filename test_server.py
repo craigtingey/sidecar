@@ -1,7 +1,6 @@
 """
 Basic tests for the sidecar server API.
 """
-import pytest
 from fastapi.testclient import TestClient
 from server import app
 
