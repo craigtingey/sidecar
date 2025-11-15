@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  sidecar:
+    build: .
+    ports:
+      - "9001:9001"
+    environment:
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - S3_BUCKET=${S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SIDE_CAR_SECRET=${SIDE_CAR_SECRET:-change-me}
+      - WP_SIDE_CAR_CALLBACK=${WP_SIDE_CAR_CALLBACK}
+      - WP_SERVER_TOKEN=${WP_SERVER_TOKEN}
+    restart: unless-stopped
