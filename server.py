@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import os
 import boto3
@@ -14,7 +14,8 @@ AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 SIDE_CAR_SECRET = os.environ.get("SIDE_CAR_SECRET", "change-me")
-WP_SIDE_CAR_CALLBACK = os.environ.get("WP_SIDE_CAR_CALLBACK")  # e.g., https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+# e.g., https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+WP_SIDE_CAR_CALLBACK = os.environ.get("WP_SIDE_CAR_CALLBACK")
 WP_SERVER_TOKEN = os.environ.get("WP_SERVER_TOKEN")
 
 s3 = boto3.client(
@@ -24,6 +25,7 @@ s3 = boto3.client(
     aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
 )
 
+
 class ProcessRequest(BaseModel):
     object_key: str
     session_id: str | None = None
@@ -31,6 +33,7 @@ class ProcessRequest(BaseModel):
     mime_type: str | None = "audio/webm"
     callback_url: str | None = None
     secret: str | None = None
+
 
 @app.post("/process-s3")
 async def process_s3(payload: ProcessRequest):
@@ -51,9 +54,19 @@ async def process_s3(payload: ProcessRequest):
         async with aiohttp.ClientSession() as session:
             headers = {"Authorization": f"Bearer {OPENAI_API_KEY}"}
             data = aiohttp.FormData()
-            data.add_field("file", open(local_path, "rb"), filename=os.path.basename(local_path), content_type=payload.mime_type or "audio/webm")
+            data.add_field(
+                "file",
+                open(local_path, "rb"),
+                filename=os.path.basename(local_path),
+                content_type=payload.mime_type or "audio/webm"
+            )
             data.add_field("model", "whisper-1")
-            async with session.post("https://api.openai.com/v1/audio/transcriptions", headers=headers, data=data, timeout=300) as resp:
+            async with session.post(
+                "https://api.openai.com/v1/audio/transcriptions",
+                headers=headers,
+                data=data,
+                timeout=300
+            ) as resp:
                 if resp.status != 200:
                     text = await resp.text()
                     raise Exception(f"OpenAI transcription error {resp.status}: {text}")
