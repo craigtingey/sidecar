@@ -5,6 +5,10 @@ import boto3
 import aiohttp
 import tempfile
 import shutil
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = FastAPI()
 
