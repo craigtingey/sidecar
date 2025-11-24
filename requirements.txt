@@ -7,3 +7,5 @@ pydantic
 aiofiles
 librosa
 numpy
+pydub
+ffmpeg-python

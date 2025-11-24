@@ -79,8 +79,23 @@ async def process_s3(payload: ProcessRequest):
     if words:
         try:
             print(f"🎯 Analyzing stereo audio for speaker detection...")
+            
+            # Convert WebM to WAV for reliable stereo processing
+            import subprocess
+            wav_path = local_path.replace('.webm', '.wav')
+            try:
+                subprocess.run([
+                    'ffmpeg', '-i', local_path, '-acodec', 'pcm_s16le',
+                    '-ac', '2', '-ar', '44100', wav_path, '-y'
+                ], check=True, capture_output=True)
+                audio_path = wav_path
+                print(f"✅ Converted WebM to WAV for stereo processing")
+            except Exception as conv_err:
+                print(f"⚠️ WebM conversion failed, trying direct load: {conv_err}")
+                audio_path = local_path
+            
             # Load audio as stereo (don't convert to mono)
-            y, sr = librosa.load(local_path, sr=None, mono=False)
+            y, sr = librosa.load(audio_path, sr=None, mono=False)
             
             # Check if stereo
             if y.ndim == 2 and y.shape[0] == 2:
@@ -142,10 +157,23 @@ async def process_s3(payload: ProcessRequest):
                 print(f"✅ Speaker detection complete: {len(formatted_lines)} speaker turns")
             else:
                 print(f"⚠️ Audio is mono, skipping speaker detection")
+            
+            # Clean up temporary WAV file
+            if 'wav_path' in locals() and os.path.exists(wav_path):
+                try:
+                    os.remove(wav_path)
+                except Exception:
+                    pass
         except Exception as e:
             print(f"⚠️ Speaker detection failed: {e}")
             # Fall back to original transcript
             formatted_transcript = transcript_text
+            # Clean up temporary WAV file
+            if 'wav_path' in locals() and os.path.exists(wav_path):
+                try:
+                    os.remove(wav_path)
+                except Exception:
+                    pass
 
     file_stat = os.stat(local_path)
     result = {
