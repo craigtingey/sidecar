@@ -5,3 +5,5 @@ aiohttp
 python-multipart
 pydantic
 aiofiles
+librosa
+numpy

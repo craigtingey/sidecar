@@ -5,6 +5,8 @@ import boto3
 import aiohttp
 import tempfile
 import shutil
+import numpy as np
+import librosa
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -59,15 +61,91 @@ async def process_s3(payload: ProcessRequest):
             data = aiohttp.FormData()
             data.add_field("file", open(local_path, "rb"), filename=os.path.basename(local_path), content_type=payload.mime_type or "audio/webm")
             data.add_field("model", "whisper-1")
+            data.add_field("response_format", "verbose_json")
+            data.add_field("timestamp_granularities[]", "word")
             async with session.post("https://api.openai.com/v1/audio/transcriptions", headers=headers, data=data, timeout=300) as resp:
                 if resp.status != 200:
                     text = await resp.text()
                     raise Exception(f"OpenAI transcription error {resp.status}: {text}")
                 resp_json = await resp.json()
                 transcript_text = resp_json.get("text", "")
+                words = resp_json.get("words", [])
     except Exception as e:
         shutil.rmtree(tmp_dir, ignore_errors=True)
         raise HTTPException(status_code=502, detail=str(e))
+
+    # Perform speaker detection if we have word timestamps
+    formatted_transcript = transcript_text
+    if words:
+        try:
+            print(f"🎯 Analyzing stereo audio for speaker detection...")
+            # Load audio as stereo (don't convert to mono)
+            y, sr = librosa.load(local_path, sr=None, mono=False)
+            
+            # Check if stereo
+            if y.ndim == 2 and y.shape[0] == 2:
+                print(f"✅ Stereo audio detected: {y.shape}")
+                left_channel = y[0]
+                right_channel = y[1]
+                
+                # Assign speaker to each word based on channel energy
+                labeled_words = []
+                for word in words:
+                    word_text = word.get('word', '')
+                    start_time = word.get('start', 0)
+                    end_time = word.get('end', 0)
+                    
+                    # Calculate sample indices
+                    start_sample = int(start_time * sr)
+                    end_sample = int(end_time * sr)
+                    
+                    # Ensure we don't go out of bounds
+                    start_sample = max(0, start_sample)
+                    end_sample = min(len(left_channel), end_sample)
+                    
+                    if end_sample > start_sample:
+                        # Calculate RMS energy for each channel
+                        left_segment = left_channel[start_sample:end_sample]
+                        right_segment = right_channel[start_sample:end_sample]
+                        
+                        left_energy = np.sqrt(np.mean(left_segment**2))
+                        right_energy = np.sqrt(np.mean(right_segment**2))
+                        
+                        # Assign speaker based on dominant channel
+                        # Left = USER, Right = BOT
+                        speaker = "USER" if left_energy > right_energy else "BOT"
+                        labeled_words.append((speaker, word_text))
+                    else:
+                        labeled_words.append(("UNKNOWN", word_text))
+                
+                # Format transcript with speaker labels
+                formatted_lines = []
+                current_speaker = None
+                current_text = []
+                
+                for speaker, word in labeled_words:
+                    if speaker != current_speaker:
+                        # Save previous line
+                        if current_speaker and current_text:
+                            formatted_lines.append(f"[{current_speaker}]: {' '.join(current_text).strip()}")
+                        # Start new line
+                        current_speaker = speaker
+                        current_text = [word]
+                    else:
+                        current_text.append(word)
+                
+                # Add final line
+                if current_speaker and current_text:
+                    formatted_lines.append(f"[{current_speaker}]: {' '.join(current_text).strip()}")
+                
+                formatted_transcript = "\n".join(formatted_lines)
+                print(f"✅ Speaker detection complete: {len(formatted_lines)} speaker turns")
+            else:
+                print(f"⚠️ Audio is mono, skipping speaker detection")
+        except Exception as e:
+            print(f"⚠️ Speaker detection failed: {e}")
+            # Fall back to original transcript
+            formatted_transcript = transcript_text
 
     file_stat = os.stat(local_path)
     result = {
@@ -76,7 +154,7 @@ async def process_s3(payload: ProcessRequest):
         "session_id": payload.session_id,
         "scenario_id": payload.scenario_id,
         "size_bytes": file_stat.st_size,
-        "transcript": transcript_text,
+        "transcript": formatted_transcript,
     }
 
     # Add server token to result if available (most WAF-safe approach)
@@ -85,6 +163,8 @@ async def process_s3(payload: ProcessRequest):
 
     callback = payload.callback_url or WP_SIDE_CAR_CALLBACK
     if callback:
+        print(f"📤 Calling WordPress callback: {callback}")
+        print(f"📦 Payload: object_key={object_key}, session_id={payload.session_id}, transcript length={len(transcript_text)}")
         try:
             async with aiohttp.ClientSession() as session:
                 headers = {
@@ -93,9 +173,15 @@ async def process_s3(payload: ProcessRequest):
                 # Optionally send token as header (redundant but safe fallback)
                 if WP_SERVER_TOKEN and SEND_X_SERVER_TOKEN_HEADER:
                     headers["X-Server-Token"] = WP_SERVER_TOKEN
-                await session.post(callback, json=result, headers=headers, timeout=30)
+                    headers["Authorization"] = f"Bearer {WP_SERVER_TOKEN}"
+                async with session.post(callback, json=result, headers=headers, timeout=30) as resp:
+                    status = resp.status
+                    text = await resp.text()
+                    print(f"✅ Callback response: {status}")
+                    if status != 200:
+                        print(f"❌ Callback error: {text[:500]}")
         except Exception as e:
-            print("Failed to POST to WP callback:", e)
+            print(f"❌ Failed to POST to WP callback: {e}")
 
     shutil.rmtree(tmp_dir, ignore_errors=True)
     return result
