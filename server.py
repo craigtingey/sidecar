@@ -79,19 +79,31 @@ async def process_s3(payload: ProcessRequest):
     if words:
         try:
             print(f"🎯 Analyzing stereo audio for speaker detection...")
+            print(f"🎯 Audio file path: {local_path}")
+            print(f"🎯 File exists: {os.path.exists(local_path)}")
+            print(f"🎯 File size: {os.path.getsize(local_path) if os.path.exists(local_path) else 'N/A'}")
             
             # Convert WebM to WAV for reliable stereo processing
             import subprocess
             wav_path = local_path.replace('.webm', '.wav')
             try:
-                subprocess.run([
-                    'ffmpeg', '-i', local_path, '-acodec', 'pcm_s16le',
-                    '-ac', '2', '-ar', '44100', wav_path, '-y'
-                ], check=True, capture_output=True)
+                # Use -nostdin to prevent ffmpeg from trying to read from terminal/display
+                result = subprocess.run([
+                    'ffmpeg', '-nostdin', '-i', local_path, 
+                    '-acodec', 'pcm_s16le', '-ac', '2', '-ar', '44100',
+                    '-y', wav_path
+                ], capture_output=True, text=True, env={**os.environ, 'DISPLAY': ''})
+                
+                if result.returncode != 0 or not os.path.exists(wav_path):
+                    stderr_msg = result.stderr[:500] if result.stderr else "No error output"
+                    print(f"⚠️ FFmpeg failed (code {result.returncode}): {stderr_msg}")
+                    raise Exception(f"FFmpeg conversion failed")
+                    
                 audio_path = wav_path
-                print(f"✅ Converted WebM to WAV for stereo processing")
+                print(f"✅ Converted WebM to WAV: {os.path.getsize(wav_path)} bytes")
             except Exception as conv_err:
-                print(f"⚠️ WebM conversion failed, trying direct load: {conv_err}")
+                print(f"⚠️ WebM conversion failed: {conv_err}")
+                print(f"⚠️ Trying direct WebM load with librosa...")
                 audio_path = local_path
             
             # Load audio as stereo (don't convert to mono)
