@@ -87,16 +87,17 @@ async def process_s3(payload: ProcessRequest):
             import subprocess
             wav_path = local_path.replace('.webm', '.wav')
             try:
-                # Use -nostdin to prevent ffmpeg from trying to read from terminal/display
+                # Use native ffmpeg (not snap version which has display issues)
                 result = subprocess.run([
-                    'ffmpeg', '-nostdin', '-i', local_path, 
+                    '/usr/bin/ffmpeg', '-nostdin', '-i', local_path, 
                     '-acodec', 'pcm_s16le', '-ac', '2', '-ar', '44100',
                     '-y', wav_path
-                ], capture_output=True, text=True, env={**os.environ, 'DISPLAY': ''})
+                ], capture_output=True, text=True)
                 
-                if result.returncode != 0 or not os.path.exists(wav_path):
+                # Check if WAV was actually created (ignore stderr warnings)
+                if not os.path.exists(wav_path) or os.path.getsize(wav_path) == 0:
                     stderr_msg = result.stderr[:500] if result.stderr else "No error output"
-                    print(f"⚠️ FFmpeg failed (code {result.returncode}): {stderr_msg}")
+                    print(f"⚠️ FFmpeg failed - no WAV created. Stderr: {stderr_msg}")
                     raise Exception(f"FFmpeg conversion failed")
                     
                 audio_path = wav_path
@@ -112,8 +113,15 @@ async def process_s3(payload: ProcessRequest):
             # Check if stereo
             if y.ndim == 2 and y.shape[0] == 2:
                 print(f"✅ Stereo audio detected: {y.shape}")
-                left_channel = y[0]
-                right_channel = y[1]
+                
+                # Channel assignment: left=user mic, right=bot audio
+                left_channel = y[0]   # LEFT channel = USER
+                right_channel = y[1]  # RIGHT channel = BOT
+                
+                # Calculate overall channel energy to verify separation
+                left_total_energy = np.sqrt(np.mean(left_channel**2))
+                right_total_energy = np.sqrt(np.mean(right_channel**2))
+                print(f"📊 Overall channel energy - Left(USER): {left_total_energy:.6f}, Right(BOT): {right_total_energy:.6f}")
                 
                 # Assign speaker to each word based on channel energy
                 labeled_words = []
@@ -138,19 +146,68 @@ async def process_s3(payload: ProcessRequest):
                         left_energy = np.sqrt(np.mean(left_segment**2))
                         right_energy = np.sqrt(np.mean(right_segment**2))
                         
-                        # Assign speaker based on dominant channel
-                        # Left = USER, Right = BOT
-                        speaker = "USER" if left_energy > right_energy else "BOT"
-                        labeled_words.append((speaker, word_text))
+                        # Use a threshold to determine speaker
+                        # If both energies are very low, it's silence/ambiguous
+                        total_energy = left_energy + right_energy
+                        
+                        if total_energy < 0.00005:  # Near silence
+                            speaker = "UNKNOWN"
+                        elif left_energy > right_energy * 1.15:  # Left is louder (15% threshold)
+                            speaker = "USER"  # Left = USER
+                        elif right_energy > left_energy * 1.15:  # Right is louder (15% threshold)
+                            speaker = "BOT"   # Right = BOT
+                        else:
+                            # Too close, mark as UNKNOWN to be smoothed later
+                            speaker = "UNKNOWN"
+                        
+                        labeled_words.append((speaker, word_text, left_energy, right_energy))
                     else:
-                        labeled_words.append(("UNKNOWN", word_text))
+                        labeled_words.append(("UNKNOWN", word_text, 0, 0))
+                
+                # Debug: Log first 20 words with energy values
+                print(f"🔍 First 20 words with energy values:")
+                for i, (speaker, word_text, left_e, right_e) in enumerate(labeled_words[:20]):
+                    ratio = left_e / (right_e + 1e-10) if right_e > 1e-10 else 999
+                    print(f"  {i+1}. '{word_text}' -> {speaker} (Left/USER:{left_e:.6f} Right/BOT:{right_e:.6f} Ratio:{ratio:.2f})")
+                
+                # Apply smoothing: fix UNKNOWN words by looking at neighbors
+                smoothed_words = []
+                window_size = 3  # Look at 3 words before and after
+                
+                for i, (speaker, word, left_e, right_e) in enumerate(labeled_words):
+                    if speaker == "UNKNOWN":
+                        # Collect nearby non-UNKNOWN speakers
+                        nearby_speakers = []
+                        
+                        # Look backward
+                        for j in range(max(0, i-window_size), i):
+                            if labeled_words[j][0] != "UNKNOWN":
+                                nearby_speakers.append(labeled_words[j][0])
+                        
+                        # Look forward
+                        for j in range(i+1, min(len(labeled_words), i+window_size+1)):
+                            if labeled_words[j][0] != "UNKNOWN":
+                                nearby_speakers.append(labeled_words[j][0])
+                        
+                        # Use majority vote from neighbors
+                        if nearby_speakers:
+                            user_count = nearby_speakers.count("USER")
+                            bot_count = nearby_speakers.count("BOT")
+                            speaker = "USER" if user_count > bot_count else "BOT"
+                        # If no neighbors, use energy comparison even if close
+                        elif left_e > right_e:
+                            speaker = "USER"
+                        else:
+                            speaker = "BOT"
+                    
+                    smoothed_words.append((speaker, word, left_e, right_e))
                 
                 # Format transcript with speaker labels
                 formatted_lines = []
                 current_speaker = None
                 current_text = []
                 
-                for speaker, word in labeled_words:
+                for speaker, word, left_e, right_e in smoothed_words:
                     if speaker != current_speaker:
                         # Save previous line
                         if current_speaker and current_text:
