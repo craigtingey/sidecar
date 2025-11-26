@@ -17,6 +17,33 @@ Authentication:
 - Optionally sends X-Server-Token header if SEND_X_SERVER_TOKEN_HEADER=true (redundant but safe)
 - Does NOT use Authorization header (gets stripped by WAF on /wp-json routes)
 
+## Production Service
+
+The sidecar runs as a systemd service in production:
+
+```bash
+# Service management
+sudo systemctl status salestrainer-sidecar    # Check status
+sudo systemctl start salestrainer-sidecar     # Start service
+sudo systemctl stop salestrainer-sidecar      # Stop service
+sudo systemctl restart salestrainer-sidecar   # Restart service
+sudo systemctl enable salestrainer-sidecar    # Enable on boot (already done)
+
+# View logs
+tail -f /var/www/salestrainer-dev/sidecar/sidecar.log
+sudo journalctl -u salestrainer-sidecar -f    # Alternative log viewing
+```
+
+The service automatically:
+- Starts on boot
+- Restarts on failure (10 second delay)
+- Runs as user `ctingey` with group `www-data`
+- Logs to `sidecar.log` in the project directory
+
+Service file location: `/etc/systemd/system/salestrainer-sidecar.service`
+
+## Development
+
 Start:
 docker-compose up --build
 
