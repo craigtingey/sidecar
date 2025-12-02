@@ -7,6 +7,8 @@ import tempfile
 import shutil
 import numpy as np
 import librosa
+import json
+import re
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -31,6 +33,195 @@ s3 = boto3.client(
     aws_access_key_id=AWS_ACCESS_KEY_ID,
     aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
 )
+
+# === PHASE 1: CORE AUDIO METRICS EXTRACTION ===
+
+def extract_core_audio_metrics(audio, sample_rate, words, labeled_words):
+    """
+    Extract 5 core audio metrics for Phase 1 MVP:
+    1. Speaking pace (WPM) for USER and BOT
+    2. Talk ratio (% speaking time)
+    3. Filler words per minute
+    4. Average user energy (RMS)
+    5. Response latency (filtered 200-3000ms)
+    
+    Returns dict with metrics_version 1.0
+    """
+    metrics = {
+        "metrics_version": "1.0",
+        "speaking_pace_user_wpm": None,
+        "speaking_pace_bot_wpm": None,
+        "talk_ratio_user_pct": None,
+        "talk_ratio_bot_pct": None,
+        "filler_words_count": 0,
+        "filler_words_per_minute": None,
+        "avg_user_energy_rms": None,
+        "avg_response_latency_ms": None,
+        "conversation_duration_seconds": None
+    }
+    
+    if not words or len(words) == 0:
+        return metrics
+    
+    # Calculate conversation duration
+    first_word_time = words[0].get('start', 0)
+    last_word_time = words[-1].get('end', 0)
+    duration_seconds = last_word_time - first_word_time
+    metrics["conversation_duration_seconds"] = round(duration_seconds, 2)
+    
+    if duration_seconds <= 0:
+        return metrics
+    
+    duration_minutes = duration_seconds / 60.0
+    
+    # Separate user and bot words
+    user_words = []
+    bot_words = []
+    
+    for speaker, word_text, left_e, right_e in labeled_words:
+        if speaker == "USER":
+            user_words.append(word_text)
+        elif speaker == "BOT":
+            bot_words.append(word_text)
+    
+    # 2. Talk ratio (calculate ACTUAL speaking time per speaker, not including silences)
+    user_speaking_time = 0
+    bot_speaking_time = 0
+    user_segments = []  # Track user speech segments for energy calculation
+    bot_segments = []
+    
+    current_speaker = None
+    segment_start = None
+    
+    for i, (speaker, word_text, left_e, right_e) in enumerate(labeled_words):
+        word_data = words[i] if i < len(words) else None
+        if not word_data:
+            continue
+            
+        word_start = word_data.get('start', 0)
+        word_end = word_data.get('end', 0)
+        
+        if speaker != current_speaker:
+            # Save previous segment
+            if current_speaker and segment_start is not None:
+                segment_duration = word_start - segment_start
+                if current_speaker == "USER":
+                    user_speaking_time += segment_duration
+                    user_segments.append((segment_start, word_start))
+                elif current_speaker == "BOT":
+                    bot_speaking_time += segment_duration
+                    bot_segments.append((segment_start, word_start))
+            
+            # Start new segment
+            current_speaker = speaker
+            segment_start = word_start
+    
+    # Add final segment
+    if current_speaker and segment_start is not None and len(words) > 0:
+        final_end = words[-1].get('end', 0)
+        segment_duration = final_end - segment_start
+        if current_speaker == "USER":
+            user_speaking_time += segment_duration
+            user_segments.append((segment_start, final_end))
+        elif current_speaker == "BOT":
+            bot_speaking_time += segment_duration
+            bot_segments.append((segment_start, final_end))
+    
+    total_speaking_time = user_speaking_time + bot_speaking_time
+    if total_speaking_time > 0:
+        metrics["talk_ratio_user_pct"] = round((user_speaking_time / total_speaking_time) * 100, 1)
+        metrics["talk_ratio_bot_pct"] = round((bot_speaking_time / total_speaking_time) * 100, 1)
+    
+    # 1. Speaking pace (WPM) - based on ACTUAL speaking time, not total duration
+    if user_words and user_speaking_time > 0:
+        user_speaking_minutes = user_speaking_time / 60.0
+        metrics["speaking_pace_user_wpm"] = round(len(user_words) / user_speaking_minutes, 1)
+    
+    if bot_words and bot_speaking_time > 0:
+        bot_speaking_minutes = bot_speaking_time / 60.0
+        metrics["speaking_pace_bot_wpm"] = round(len(bot_words) / bot_speaking_minutes, 1)
+    
+    # 3. Filler words detection
+    filler_patterns = [
+        r'\bum+\b', r'\buh+\b', r'\blike\b', r'\byou know\b', 
+        r'\bso+\b', r'\bakshually\b', r'\bactually\b', r'\bbasically\b',
+        r'\bliterally\b', r'\bjust\b', r'\bkinda\b', r'\bsorta\b',
+        r'\bI mean\b', r'\byeah\b', r'\bok\b', r'\bokay\b'
+    ]
+    
+    user_text = ' '.join(user_words).lower()
+    filler_count = 0
+    for pattern in filler_patterns:
+        filler_count += len(re.findall(pattern, user_text, re.IGNORECASE))
+    
+    metrics["filler_words_count"] = filler_count
+    if duration_minutes > 0:
+        metrics["filler_words_per_minute"] = round(filler_count / duration_minutes, 2)
+    
+    # 4. Average user energy (RMS) - only during actual user speech segments
+    if user_segments and len(user_segments) > 0:
+        if audio.ndim == 2 and audio.shape[0] == 2:
+            # Stereo: left channel = USER
+            left_channel = audio[0]
+            
+            # Extract audio samples only during user speech segments
+            user_audio_samples = []
+            for seg_start, seg_end in user_segments:
+                start_sample = int(seg_start * sample_rate)
+                end_sample = int(seg_end * sample_rate)
+                # Ensure bounds are within audio length
+                start_sample = max(0, start_sample)
+                end_sample = min(len(left_channel), end_sample)
+                if end_sample > start_sample:
+                    user_audio_samples.extend(left_channel[start_sample:end_sample])
+            
+            # Calculate RMS only on user speech samples
+            if len(user_audio_samples) > 0:
+                user_energy = np.sqrt(np.mean(np.array(user_audio_samples)**2))
+                metrics["avg_user_energy_rms"] = round(float(user_energy), 6)
+        elif audio.ndim == 1:
+            # Mono: extract segments and calculate energy
+            user_audio_samples = []
+            for seg_start, seg_end in user_segments:
+                start_sample = int(seg_start * sample_rate)
+                end_sample = int(seg_end * sample_rate)
+                start_sample = max(0, start_sample)
+                end_sample = min(len(audio), end_sample)
+                if end_sample > start_sample:
+                    user_audio_samples.extend(audio[start_sample:end_sample])
+            
+            if len(user_audio_samples) > 0:
+                user_energy = np.sqrt(np.mean(np.array(user_audio_samples)**2))
+                metrics["avg_user_energy_rms"] = round(float(user_energy), 6)
+    
+    # 5. Response latency (filtered 200-3000ms to exclude artificial Convai delays)
+    response_latencies = []
+    prev_speaker = None
+    prev_end_time = None
+    
+    for i, (speaker, word_text, left_e, right_e) in enumerate(labeled_words):
+        word_data = words[i] if i < len(words) else None
+        if not word_data:
+            continue
+            
+        word_start = word_data.get('start', 0)
+        
+        # Detect speaker transition (BOT → USER or USER → BOT)
+        if prev_speaker and prev_speaker != speaker and prev_end_time:
+            gap_ms = (word_start - prev_end_time) * 1000
+            
+            # Filter to natural human response range (200-3000ms)
+            # Excludes: <200ms (overlap/system), >3000ms (connection delay)
+            if 200 <= gap_ms <= 3000:
+                response_latencies.append(gap_ms)
+        
+        prev_speaker = speaker
+        prev_end_time = word_data.get('end', 0)
+    
+    if response_latencies:
+        metrics["avg_response_latency_ms"] = round(sum(response_latencies) / len(response_latencies), 1)
+    
+    return metrics
 
 class ProcessRequest(BaseModel):
     object_key: str
@@ -244,6 +435,22 @@ async def process_s3(payload: ProcessRequest):
                 except Exception:
                     pass
 
+    # === PHASE 1: EXTRACT CORE AUDIO METRICS ===
+    audio_metrics = None
+    if words and 'y' in locals() and 'sr' in locals():
+        try:
+            print("📊 Extracting audio metrics...")
+            audio_metrics = extract_core_audio_metrics(
+                audio=y,
+                sample_rate=sr,
+                words=words,
+                labeled_words=smoothed_words if 'smoothed_words' in locals() else []
+            )
+            print(f"✅ Metrics extracted: {json.dumps(audio_metrics, indent=2)}")
+        except Exception as e:
+            print(f"⚠️ Failed to extract audio metrics: {e}")
+            audio_metrics = None
+
     file_stat = os.stat(local_path)
     result = {
         "ok": True,
@@ -253,6 +460,10 @@ async def process_s3(payload: ProcessRequest):
         "size_bytes": file_stat.st_size,
         "transcript": formatted_transcript,
     }
+    
+    # Add audio metrics if available (Phase 1)
+    if audio_metrics:
+        result["audio_metrics_raw"] = audio_metrics
 
     # Add server token to result if available (most WAF-safe approach)
     if WP_SERVER_TOKEN:
