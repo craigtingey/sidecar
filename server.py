@@ -35,20 +35,37 @@ s3 = boto3.client(
 )
 
 # === PHASE 1: CORE AUDIO METRICS EXTRACTION ===
+# === PHASE 2: EXPANDED METRICS EXTRACTION ===
 
-def extract_core_audio_metrics(audio, sample_rate, words, labeled_words):
+def extract_core_audio_metrics(audio, sample_rate, words, labeled_words, include_phase2=True):
     """
-    Extract 5 core audio metrics for Phase 1 MVP:
+    Extract audio metrics for Phase 1 (core) + Phase 2 (expanded):
+    
+    Phase 1 (5 metrics):
     1. Speaking pace (WPM) for USER and BOT
     2. Talk ratio (% speaking time)
     3. Filler words per minute
     4. Average user energy (RMS)
     5. Response latency (filtered 200-3000ms)
     
-    Returns dict with metrics_version 1.0
+    Phase 2 (7 additional metrics):
+    6. Turn-taking patterns (count, avg/max length, monologues)
+    7. Question analysis (total, open/closed, ratio)
+    8. Silence metrics (%, long pauses, avg duration)
+    9. Pitch variation (mean, stddev, range)
+    
+    Args:
+        audio: Audio array (stereo or mono)
+        sample_rate: Sample rate in Hz
+        words: Word timestamps from Whisper
+        labeled_words: Word tuples with speaker labels
+        include_phase2: If True, calculate Phase 2 metrics (default: True)
+    
+    Returns:
+        dict with metrics_version "2.0" (if Phase 2) or "1.0"
     """
     metrics = {
-        "metrics_version": "1.0",
+        "metrics_version": "2.0" if include_phase2 else "1.0",
         "speaking_pace_user_wpm": None,
         "speaking_pace_bot_wpm": None,
         "talk_ratio_user_pct": None,
@@ -220,6 +237,188 @@ def extract_core_audio_metrics(audio, sample_rate, words, labeled_words):
     
     if response_latencies:
         metrics["avg_response_latency_ms"] = round(sum(response_latencies) / len(response_latencies), 1)
+    
+    # === PHASE 2 METRICS ===
+    if include_phase2:
+        try:
+            # 6. Turn-taking metrics
+            user_turns = []
+            current_turn_start = None
+            
+            for i, (speaker, word_text, left_e, right_e) in enumerate(labeled_words):
+                word_data = words[i] if i < len(words) else None
+                if not word_data:
+                    continue
+                
+                if speaker == "USER":
+                    if current_turn_start is None:
+                        current_turn_start = word_data.get('start', 0)
+                    current_turn_end = word_data.get('end', 0)
+                else:
+                    # Speaker changed to BOT
+                    if current_turn_start is not None:
+                        turn_length = current_turn_end - current_turn_start
+                        user_turns.append(turn_length)
+                        current_turn_start = None
+            
+            # Don't forget last turn
+            if current_turn_start is not None:
+                turn_length = current_turn_end - current_turn_start
+                user_turns.append(turn_length)
+            
+            if user_turns:
+                metrics["user_turn_count"] = len(user_turns)
+                metrics["avg_turn_length_sec"] = round(sum(user_turns) / len(user_turns), 1)
+                metrics["max_turn_length_sec"] = round(max(user_turns), 1)
+                metrics["long_monologues_count"] = sum(1 for t in user_turns if t > 30)
+            else:
+                metrics["user_turn_count"] = 0
+                metrics["avg_turn_length_sec"] = None
+                metrics["max_turn_length_sec"] = None
+                metrics["long_monologues_count"] = 0
+            
+            # 7. Question analysis (extract from labeled_words to build transcript)
+            user_lines = []
+            current_line_words = []
+            prev_speaker = None
+            
+            for speaker, word_text, left_e, right_e in labeled_words:
+                if speaker == "USER":
+                    if prev_speaker != "USER" and current_line_words:
+                        user_lines.append(' '.join(current_line_words))
+                        current_line_words = []
+                    current_line_words.append(word_text)
+                elif current_line_words:
+                    user_lines.append(' '.join(current_line_words))
+                    current_line_words = []
+                prev_speaker = speaker
+            
+            if current_line_words:
+                user_lines.append(' '.join(current_line_words))
+            
+            # Detect questions
+            open_patterns = [
+                r'\b(who|what|when|where|why|how)\b',
+                r'\btell me (about|more)\b',
+                r'\bwalk me through\b',
+                r'\bhelp me understand\b',
+                r'\bcan you explain\b'
+            ]
+            
+            closed_patterns = [
+                r'^\s*(do|does|did|is|are|was|were|can|could|would|will|should|have|has)\b',
+                r'\bright\?',
+                r'\bcorrect\?'
+            ]
+            
+            questions = [line for line in user_lines if '?' in line]
+            open_questions = 0
+            closed_questions = 0
+            
+            for q in questions:
+                q_lower = q.lower()
+                is_open = any(re.search(pattern, q_lower) for pattern in open_patterns)
+                is_closed = any(re.search(pattern, q_lower) for pattern in closed_patterns)
+                
+                if is_open and not is_closed:
+                    open_questions += 1
+                elif is_closed:
+                    closed_questions += 1
+                elif not is_open and not is_closed:
+                    # Ambiguous - default to closed if starts with verb
+                    if re.match(r'^\s*(do|is|can|are|did|will|should)', q_lower):
+                        closed_questions += 1
+                    else:
+                        open_questions += 1
+            
+            total_questions = len(questions)
+            metrics["question_count_total"] = total_questions
+            metrics["question_count_open"] = open_questions
+            metrics["question_count_closed"] = closed_questions
+            metrics["question_ratio_open_pct"] = round((open_questions / total_questions * 100), 1) if total_questions > 0 else 0
+            
+            # 8. Silence metrics
+            silences = []
+            long_pauses = []
+            
+            for i in range(len(words) - 1):
+                current = words[i]
+                next_word = words[i + 1]
+                
+                gap = next_word.get('start', 0) - current.get('end', 0)
+                
+                if gap > 0.1:  # Ignore tiny gaps (<100ms)
+                    silences.append(gap)
+                    
+                    # Long pause: BOT finishes, USER takes >2s to respond
+                    if i < len(labeled_words) - 1:
+                        current_speaker = labeled_words[i][0]
+                        next_speaker = labeled_words[i + 1][0]
+                        if current_speaker == 'BOT' and next_speaker == 'USER' and gap > 2.0:
+                            long_pauses.append(gap)
+            
+            total_silence = sum(silences)
+            metrics["silence_pct"] = round((total_silence / duration_seconds * 100), 1) if duration_seconds > 0 else 0
+            metrics["long_pauses_count"] = len(long_pauses)
+            metrics["avg_pause_duration_sec"] = round(sum(silences) / len(silences), 2) if silences else 0
+            
+            # 9. Pitch variation (requires librosa pyin - computationally expensive)
+            try:
+                if user_segments and len(user_segments) > 0:
+                    # Extract USER audio only
+                    if audio.ndim == 2 and audio.shape[0] == 2:
+                        left_channel = audio[0]
+                    else:
+                        left_channel = audio
+                    
+                    user_audio_samples = []
+                    for seg_start, seg_end in user_segments:
+                        start_sample = int(seg_start * sample_rate)
+                        end_sample = int(seg_end * sample_rate)
+                        start_sample = max(0, start_sample)
+                        end_sample = min(len(left_channel), end_sample)
+                        if end_sample > start_sample:
+                            user_audio_samples.extend(left_channel[start_sample:end_sample])
+                    
+                    if len(user_audio_samples) >= 2048:  # Need minimum samples for pitch detection
+                        user_audio_array = np.array(user_audio_samples)
+                        
+                        # Use librosa pyin for pitch extraction
+                        f0, voiced_flag, voiced_probs = librosa.pyin(
+                            user_audio_array,
+                            fmin=librosa.note_to_hz('C2'),  # 65 Hz (low male)
+                            fmax=librosa.note_to_hz('C7'),  # 2093 Hz (high female)
+                            sr=sample_rate
+                        )
+                        
+                        # Filter out unvoiced frames
+                        f0_voiced = f0[~np.isnan(f0)]
+                        
+                        if len(f0_voiced) > 0:
+                            metrics["pitch_mean_hz"] = round(float(np.mean(f0_voiced)), 1)
+                            metrics["pitch_stddev_hz"] = round(float(np.std(f0_voiced)), 1)
+                            metrics["pitch_range_hz"] = round(float(np.max(f0_voiced) - np.min(f0_voiced)), 1)
+                        else:
+                            metrics["pitch_mean_hz"] = None
+                            metrics["pitch_stddev_hz"] = None
+                            metrics["pitch_range_hz"] = None
+                    else:
+                        metrics["pitch_mean_hz"] = None
+                        metrics["pitch_stddev_hz"] = None
+                        metrics["pitch_range_hz"] = None
+                else:
+                    metrics["pitch_mean_hz"] = None
+                    metrics["pitch_stddev_hz"] = None
+                    metrics["pitch_range_hz"] = None
+            except Exception as pitch_err:
+                print(f"⚠️ Pitch extraction failed: {pitch_err}")
+                metrics["pitch_mean_hz"] = None
+                metrics["pitch_stddev_hz"] = None
+                metrics["pitch_range_hz"] = None
+        
+        except Exception as phase2_err:
+            print(f"⚠️ Phase 2 metrics extraction failed: {phase2_err}")
+            # Phase 1 metrics still returned
     
     return metrics
 

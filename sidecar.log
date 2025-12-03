@@ -1,0 +1,614 @@
+INFO:     Started server process [684190]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:9001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:40956 - "GET / HTTP/1.1" 404 Not Found
+🎯 Analyzing stereo audio for speaker detection...
+🎯 Audio file path: /tmp/st-sidecar-ro_jx8s3/1764472609-I2nXYN.webm
+🎯 File exists: True
+🎯 File size: 1100528
+✅ Converted WebM to WAV: 12044670 bytes
+✅ Stereo audio detected: (2, 3011148)
+📊 Overall channel energy - Left(USER): 0.001064, Right(BOT): 0.028530
+🔍 First 20 words with energy values:
+  1. 'Hello' -> USER (Left/USER:0.002367 Right/BOT:0.000000 Ratio:999.00)
+  2. 'how' -> USER (Left/USER:0.002335 Right/BOT:0.000000 Ratio:999.00)
+  3. 'are' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  4. 'you' -> USER (Left/USER:0.000568 Right/BOT:0.000000 Ratio:999.00)
+  5. 'I'm' -> BOT (Left/USER:0.000377 Right/BOT:0.071944 Ratio:0.01)
+  6. 'doing' -> BOT (Left/USER:0.000308 Right/BOT:0.077596 Ratio:0.00)
+  7. 'just' -> BOT (Left/USER:0.000651 Right/BOT:0.061633 Ratio:0.01)
+  8. 'wonderfully' -> BOT (Left/USER:0.000519 Right/BOT:0.052137 Ratio:0.01)
+  9. 'thank' -> BOT (Left/USER:0.000292 Right/BOT:0.032883 Ratio:0.01)
+  10. 'you' -> BOT (Left/USER:0.000272 Right/BOT:0.036851 Ratio:0.01)
+  11. 'for' -> BOT (Left/USER:0.000213 Right/BOT:0.023407 Ratio:0.01)
+  12. 'asking' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  13. 'It's' -> BOT (Left/USER:0.000436 Right/BOT:0.044776 Ratio:0.01)
+  14. 'always' -> BOT (Left/USER:0.000222 Right/BOT:0.061356 Ratio:0.00)
+  15. 'a' -> BOT (Left/USER:0.000260 Right/BOT:0.025243 Ratio:0.01)
+  16. 'good' -> BOT (Left/USER:0.000229 Right/BOT:0.038659 Ratio:0.01)
+  17. 'day' -> BOT (Left/USER:0.000261 Right/BOT:0.037147 Ratio:0.01)
+  18. 'when' -> BOT (Left/USER:0.000214 Right/BOT:0.025806 Ratio:0.01)
+  19. 'I' -> BOT (Left/USER:0.000224 Right/BOT:0.025055 Ratio:0.01)
+  20. 'get' -> BOT (Left/USER:0.000311 Right/BOT:0.040690 Ratio:0.01)
+✅ Speaker detection complete: 8 speaker turns
+📤 Calling WordPress callback: https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+📦 Payload: object_key=uploads/session-1764472526160-aa464d3c91fbe3dd/1764472609-I2nXYN.webm, session_id=session-1764472526160-aa464d3c91fbe3dd, transcript length=746
+✅ Callback response: 200
+INFO:     127.0.0.1:51254 - "POST /process-s3 HTTP/1.1" 200 OK
+🎯 Analyzing stereo audio for speaker detection...
+🎯 Audio file path: /tmp/st-sidecar-t9v7c7yb/1764472790-us1cmT.webm
+🎯 File exists: True
+🎯 File size: 1248479
+✅ Converted WebM to WAV: 13664022 bytes
+✅ Stereo audio detected: (2, 3415986)
+📊 Overall channel energy - Left(USER): 0.001773, Right(BOT): 0.025131
+🔍 First 20 words with energy values:
+  1. 'Hello' -> USER (Left/USER:0.002236 Right/BOT:0.000000 Ratio:999.00)
+  2. 'how' -> USER (Left/USER:0.003420 Right/BOT:0.000000 Ratio:999.00)
+  3. 'are' -> USER (Left/USER:0.004410 Right/BOT:0.000000 Ratio:999.00)
+  4. 'you' -> USER (Left/USER:0.003152 Right/BOT:0.000000 Ratio:999.00)
+  5. 'I'm' -> BOT (Left/USER:0.000510 Right/BOT:0.054418 Ratio:0.01)
+  6. 'doing' -> BOT (Left/USER:0.000520 Right/BOT:0.088650 Ratio:0.01)
+  7. 'wonderfully' -> BOT (Left/USER:0.000560 Right/BOT:0.058058 Ratio:0.01)
+  8. 'Thank' -> BOT (Left/USER:0.000314 Right/BOT:0.031856 Ratio:0.01)
+  9. 'you' -> BOT (Left/USER:0.000319 Right/BOT:0.023849 Ratio:0.01)
+  10. 'for' -> BOT (Left/USER:0.000371 Right/BOT:0.030850 Ratio:0.01)
+  11. 'asking' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  12. 'It's' -> BOT (Left/USER:0.000569 Right/BOT:0.048583 Ratio:0.01)
+  13. 'always' -> BOT (Left/USER:0.000420 Right/BOT:0.049243 Ratio:0.01)
+  14. 'a' -> BOT (Left/USER:0.000420 Right/BOT:0.023162 Ratio:0.02)
+  15. 'good' -> BOT (Left/USER:0.000464 Right/BOT:0.024658 Ratio:0.02)
+  16. 'day' -> BOT (Left/USER:0.000361 Right/BOT:0.027694 Ratio:0.01)
+  17. 'when' -> BOT (Left/USER:0.000323 Right/BOT:0.025902 Ratio:0.01)
+  18. 'I' -> BOT (Left/USER:0.000425 Right/BOT:0.031277 Ratio:0.01)
+  19. 'get' -> BOT (Left/USER:0.000423 Right/BOT:0.013087 Ratio:0.03)
+  20. 'to' -> BOT (Left/USER:0.000372 Right/BOT:0.034361 Ratio:0.01)
+✅ Speaker detection complete: 8 speaker turns
+📤 Calling WordPress callback: https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+📦 Payload: object_key=uploads/session-1764472703458-d246df59a9fe592c/1764472790-us1cmT.webm, session_id=session-1764472703458-d246df59a9fe592c, transcript length=732
+✅ Callback response: 200
+INFO:     127.0.0.1:46774 - "POST /process-s3 HTTP/1.1" 200 OK
+🎯 Analyzing stereo audio for speaker detection...
+🎯 Audio file path: /tmp/st-sidecar-yaf2c59y/1764473180-TAqztB.webm
+🎯 File exists: True
+🎯 File size: 909082
+✅ Converted WebM to WAV: 9949038 bytes
+✅ Stereo audio detected: (2, 2487240)
+📊 Overall channel energy - Left(USER): 0.001743, Right(BOT): 0.026733
+🔍 First 20 words with energy values:
+  1. 'Hello' -> USER (Left/USER:0.004929 Right/BOT:0.000000 Ratio:999.00)
+  2. 'how' -> USER (Left/USER:0.006263 Right/BOT:0.000000 Ratio:999.00)
+  3. 'are' -> USER (Left/USER:0.007029 Right/BOT:0.000000 Ratio:999.00)
+  4. 'you' -> USER (Left/USER:0.002761 Right/BOT:0.000000 Ratio:999.00)
+  5. 'Oh' -> BOT (Left/USER:0.000527 Right/BOT:0.088609 Ratio:0.01)
+  6. 'I'm' -> BOT (Left/USER:0.000513 Right/BOT:0.068786 Ratio:0.01)
+  7. 'doing' -> BOT (Left/USER:0.000464 Right/BOT:0.069734 Ratio:0.01)
+  8. 'just' -> BOT (Left/USER:0.000450 Right/BOT:0.052624 Ratio:0.01)
+  9. 'wonderfully' -> BOT (Left/USER:0.000397 Right/BOT:0.032745 Ratio:0.01)
+  10. 'thank' -> BOT (Left/USER:0.000488 Right/BOT:0.027209 Ratio:0.02)
+  11. 'you' -> BOT (Left/USER:0.000343 Right/BOT:0.035118 Ratio:0.01)
+  12. 'for' -> BOT (Left/USER:0.000403 Right/BOT:0.032371 Ratio:0.01)
+  13. 'asking' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  14. 'The' -> BOT (Left/USER:0.000441 Right/BOT:0.024807 Ratio:0.02)
+  15. 'sun' -> BOT (Left/USER:0.000372 Right/BOT:0.032988 Ratio:0.01)
+  16. 'is' -> BOT (Left/USER:0.000384 Right/BOT:0.024563 Ratio:0.02)
+  17. 'shining' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  18. 'and' -> BOT (Left/USER:0.000319 Right/BOT:0.021641 Ratio:0.01)
+  19. 'it's' -> BOT (Left/USER:0.000399 Right/BOT:0.027989 Ratio:0.01)
+  20. 'always' -> BOT (Left/USER:0.000474 Right/BOT:0.037231 Ratio:0.01)
+✅ Speaker detection complete: 6 speaker turns
+📤 Calling WordPress callback: https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+📦 Payload: object_key=uploads/session-1764473114800-023bccaf3bc51a07/1764473180-TAqztB.webm, session_id=session-1764473114800-023bccaf3bc51a07, transcript length=485
+✅ Callback response: 200
+INFO:     127.0.0.1:44344 - "POST /process-s3 HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [684190]
+INFO:     Started server process [1298173]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:9001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:50090 - "POST /process-s3 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:33522 - "POST /process-s3 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:41932 - "POST /process-s3 HTTP/1.1" 401 Unauthorized
+🎯 Analyzing stereo audio for speaker detection...
+🎯 Audio file path: /tmp/st-sidecar-le5insa2/1764472790-us1cmT.webm
+🎯 File exists: True
+🎯 File size: 1248479
+✅ Converted WebM to WAV: 13664022 bytes
+✅ Stereo audio detected: (2, 3415986)
+📊 Overall channel energy - Left(USER): 0.001773, Right(BOT): 0.025131
+🔍 First 20 words with energy values:
+  1. 'Hello' -> USER (Left/USER:0.002236 Right/BOT:0.000000 Ratio:999.00)
+  2. 'how' -> USER (Left/USER:0.003420 Right/BOT:0.000000 Ratio:999.00)
+  3. 'are' -> USER (Left/USER:0.004410 Right/BOT:0.000000 Ratio:999.00)
+  4. 'you' -> USER (Left/USER:0.003152 Right/BOT:0.000000 Ratio:999.00)
+  5. 'I'm' -> BOT (Left/USER:0.000510 Right/BOT:0.054418 Ratio:0.01)
+  6. 'doing' -> BOT (Left/USER:0.000520 Right/BOT:0.088650 Ratio:0.01)
+  7. 'wonderfully' -> BOT (Left/USER:0.000560 Right/BOT:0.058058 Ratio:0.01)
+  8. 'Thank' -> BOT (Left/USER:0.000314 Right/BOT:0.031856 Ratio:0.01)
+  9. 'you' -> BOT (Left/USER:0.000319 Right/BOT:0.023849 Ratio:0.01)
+  10. 'for' -> BOT (Left/USER:0.000371 Right/BOT:0.030850 Ratio:0.01)
+  11. 'asking' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  12. 'It's' -> BOT (Left/USER:0.000569 Right/BOT:0.048583 Ratio:0.01)
+  13. 'always' -> BOT (Left/USER:0.000420 Right/BOT:0.049243 Ratio:0.01)
+  14. 'a' -> BOT (Left/USER:0.000420 Right/BOT:0.023162 Ratio:0.02)
+  15. 'good' -> BOT (Left/USER:0.000464 Right/BOT:0.024658 Ratio:0.02)
+  16. 'day' -> BOT (Left/USER:0.000361 Right/BOT:0.027694 Ratio:0.01)
+  17. 'when' -> BOT (Left/USER:0.000323 Right/BOT:0.025902 Ratio:0.01)
+  18. 'I' -> BOT (Left/USER:0.000425 Right/BOT:0.031277 Ratio:0.01)
+  19. 'get' -> BOT (Left/USER:0.000423 Right/BOT:0.013087 Ratio:0.03)
+  20. 'to' -> BOT (Left/USER:0.000372 Right/BOT:0.034361 Ratio:0.01)
+✅ Speaker detection complete: 8 speaker turns
+📊 Extracting audio metrics...
+✅ Metrics extracted: {
+  "metrics_version": "1.0",
+  "speaking_pace_user_wpm": 29.7,
+  "speaking_pace_bot_wpm": 95.7,
+  "talk_ratio_user_pct": 35.2,
+  "talk_ratio_bot_pct": 64.8,
+  "filler_words_count": 2,
+  "filler_words_per_minute": 1.86,
+  "avg_user_energy_rms": 0.001773,
+  "avg_response_latency_ms": 1730.0,
+  "conversation_duration_seconds": 64.6
+}
+📤 Calling WordPress callback: https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+📦 Payload: object_key=uploads/session-1764472703458-d246df59a9fe592c/1764472790-us1cmT.webm, session_id=session-1764472703458-d246df59a9fe592c, transcript length=732
+✅ Callback response: 200
+INFO:     127.0.0.1:35586 - "POST /process-s3 HTTP/1.1" 200 OK
+🎯 Analyzing stereo audio for speaker detection...
+🎯 Audio file path: /tmp/st-sidecar-44movz2p/1764472790-us1cmT.webm
+🎯 File exists: True
+🎯 File size: 1248479
+✅ Converted WebM to WAV: 13664022 bytes
+✅ Stereo audio detected: (2, 3415986)
+📊 Overall channel energy - Left(USER): 0.001773, Right(BOT): 0.025131
+🔍 First 20 words with energy values:
+  1. 'Hello' -> USER (Left/USER:0.002236 Right/BOT:0.000000 Ratio:999.00)
+  2. 'how' -> USER (Left/USER:0.003420 Right/BOT:0.000000 Ratio:999.00)
+  3. 'are' -> USER (Left/USER:0.004410 Right/BOT:0.000000 Ratio:999.00)
+  4. 'you' -> USER (Left/USER:0.003152 Right/BOT:0.000000 Ratio:999.00)
+  5. 'I'm' -> BOT (Left/USER:0.000510 Right/BOT:0.054418 Ratio:0.01)
+  6. 'doing' -> BOT (Left/USER:0.000520 Right/BOT:0.088650 Ratio:0.01)
+  7. 'wonderfully' -> BOT (Left/USER:0.000560 Right/BOT:0.058058 Ratio:0.01)
+  8. 'Thank' -> BOT (Left/USER:0.000314 Right/BOT:0.031856 Ratio:0.01)
+  9. 'you' -> BOT (Left/USER:0.000319 Right/BOT:0.023849 Ratio:0.01)
+  10. 'for' -> BOT (Left/USER:0.000371 Right/BOT:0.030850 Ratio:0.01)
+  11. 'asking' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  12. 'It's' -> BOT (Left/USER:0.000569 Right/BOT:0.048583 Ratio:0.01)
+  13. 'always' -> BOT (Left/USER:0.000420 Right/BOT:0.049243 Ratio:0.01)
+  14. 'a' -> BOT (Left/USER:0.000420 Right/BOT:0.023162 Ratio:0.02)
+  15. 'good' -> BOT (Left/USER:0.000464 Right/BOT:0.024658 Ratio:0.02)
+  16. 'day' -> BOT (Left/USER:0.000361 Right/BOT:0.027694 Ratio:0.01)
+  17. 'when' -> BOT (Left/USER:0.000323 Right/BOT:0.025902 Ratio:0.01)
+  18. 'I' -> BOT (Left/USER:0.000425 Right/BOT:0.031277 Ratio:0.01)
+  19. 'get' -> BOT (Left/USER:0.000423 Right/BOT:0.013087 Ratio:0.03)
+  20. 'to' -> BOT (Left/USER:0.000372 Right/BOT:0.034361 Ratio:0.01)
+✅ Speaker detection complete: 8 speaker turns
+📊 Extracting audio metrics...
+✅ Metrics extracted: {
+  "metrics_version": "1.0",
+  "speaking_pace_user_wpm": 29.7,
+  "speaking_pace_bot_wpm": 95.7,
+  "talk_ratio_user_pct": 35.2,
+  "talk_ratio_bot_pct": 64.8,
+  "filler_words_count": 2,
+  "filler_words_per_minute": 1.86,
+  "avg_user_energy_rms": 0.001773,
+  "avg_response_latency_ms": 1730.0,
+  "conversation_duration_seconds": 64.6
+}
+📤 Calling WordPress callback: https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+📦 Payload: object_key=uploads/session-1764472703458-d246df59a9fe592c/1764472790-us1cmT.webm, session_id=session-1764472703458-d246df59a9fe592c, transcript length=732
+✅ Callback response: 200
+INFO:     127.0.0.1:58342 - "POST /process-s3 HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1298173]
+INFO:     Started server process [1302424]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:9001 (Press CTRL+C to quit)
+🎯 Analyzing stereo audio for speaker detection...
+🎯 Audio file path: /tmp/st-sidecar-zhscjw57/1764472790-us1cmT.webm
+🎯 File exists: True
+🎯 File size: 1248479
+✅ Converted WebM to WAV: 13664022 bytes
+✅ Stereo audio detected: (2, 3415986)
+📊 Overall channel energy - Left(USER): 0.001773, Right(BOT): 0.025131
+🔍 First 20 words with energy values:
+  1. 'Hello' -> USER (Left/USER:0.002236 Right/BOT:0.000000 Ratio:999.00)
+  2. 'how' -> USER (Left/USER:0.003420 Right/BOT:0.000000 Ratio:999.00)
+  3. 'are' -> USER (Left/USER:0.004410 Right/BOT:0.000000 Ratio:999.00)
+  4. 'you' -> USER (Left/USER:0.003152 Right/BOT:0.000000 Ratio:999.00)
+  5. 'I'm' -> BOT (Left/USER:0.000510 Right/BOT:0.054418 Ratio:0.01)
+  6. 'doing' -> BOT (Left/USER:0.000520 Right/BOT:0.088650 Ratio:0.01)
+  7. 'wonderfully' -> BOT (Left/USER:0.000560 Right/BOT:0.058058 Ratio:0.01)
+  8. 'Thank' -> BOT (Left/USER:0.000314 Right/BOT:0.031856 Ratio:0.01)
+  9. 'you' -> BOT (Left/USER:0.000319 Right/BOT:0.023849 Ratio:0.01)
+  10. 'for' -> BOT (Left/USER:0.000371 Right/BOT:0.030850 Ratio:0.01)
+  11. 'asking' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  12. 'It's' -> BOT (Left/USER:0.000569 Right/BOT:0.048583 Ratio:0.01)
+  13. 'always' -> BOT (Left/USER:0.000420 Right/BOT:0.049243 Ratio:0.01)
+  14. 'a' -> BOT (Left/USER:0.000420 Right/BOT:0.023162 Ratio:0.02)
+  15. 'good' -> BOT (Left/USER:0.000464 Right/BOT:0.024658 Ratio:0.02)
+  16. 'day' -> BOT (Left/USER:0.000361 Right/BOT:0.027694 Ratio:0.01)
+  17. 'when' -> BOT (Left/USER:0.000323 Right/BOT:0.025902 Ratio:0.01)
+  18. 'I' -> BOT (Left/USER:0.000425 Right/BOT:0.031277 Ratio:0.01)
+  19. 'get' -> BOT (Left/USER:0.000423 Right/BOT:0.013087 Ratio:0.03)
+  20. 'to' -> BOT (Left/USER:0.000372 Right/BOT:0.034361 Ratio:0.01)
+✅ Speaker detection complete: 8 speaker turns
+📊 Extracting audio metrics...
+✅ Metrics extracted: {
+  "metrics_version": "1.0",
+  "speaking_pace_user_wpm": 84.5,
+  "speaking_pace_bot_wpm": 147.6,
+  "talk_ratio_user_pct": 35.2,
+  "talk_ratio_bot_pct": 64.8,
+  "filler_words_count": 2,
+  "filler_words_per_minute": 1.86,
+  "avg_user_energy_rms": 0.002954,
+  "avg_response_latency_ms": 1730.0,
+  "conversation_duration_seconds": 64.6
+}
+📤 Calling WordPress callback: https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+📦 Payload: object_key=uploads/session-1764472703458-d246df59a9fe592c/1764472790-us1cmT.webm, session_id=session-1764472703458-d246df59a9fe592c, transcript length=732
+✅ Callback response: 200
+INFO:     127.0.0.1:33720 - "POST /process-s3 HTTP/1.1" 200 OK
+🎯 Analyzing stereo audio for speaker detection...
+🎯 Audio file path: /tmp/st-sidecar-almvdggt/1764713594-Govsdk.webm
+🎯 File exists: True
+🎯 File size: 2151658
+✅ Converted WebM to WAV: 23549478 bytes
+✅ Stereo audio detected: (2, 5887350)
+📊 Overall channel energy - Left(USER): 0.005541, Right(BOT): 0.029641
+🔍 First 20 words with energy values:
+  1. 'Hello' -> USER (Left/USER:0.008523 Right/BOT:0.000000 Ratio:999.00)
+  2. 'how' -> USER (Left/USER:0.006709 Right/BOT:0.000000 Ratio:999.00)
+  3. 'are' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  4. 'you' -> USER (Left/USER:0.003036 Right/BOT:0.000000 Ratio:999.00)
+  5. 'I'm' -> BOT (Left/USER:0.002910 Right/BOT:0.032060 Ratio:0.09)
+  6. 'doing' -> BOT (Left/USER:0.002465 Right/BOT:0.061174 Ratio:0.04)
+  7. 'just' -> BOT (Left/USER:0.002275 Right/BOT:0.035088 Ratio:0.06)
+  8. 'wonderfully' -> BOT (Left/USER:0.004588 Right/BOT:0.043314 Ratio:0.11)
+  9. 'Thank' -> BOT (Left/USER:0.009080 Right/BOT:0.031433 Ratio:0.29)
+  10. 'you' -> BOT (Left/USER:0.004991 Right/BOT:0.028747 Ratio:0.17)
+  11. 'for' -> BOT (Left/USER:0.004441 Right/BOT:0.026075 Ratio:0.17)
+  12. 'asking' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  13. 'It's' -> BOT (Left/USER:0.002730 Right/BOT:0.025799 Ratio:0.11)
+  14. 'a' -> BOT (Left/USER:0.002958 Right/BOT:0.032585 Ratio:0.09)
+  15. 'lovely' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  16. 'day' -> BOT (Left/USER:0.006346 Right/BOT:0.030265 Ratio:0.21)
+  17. 'and' -> BOT (Left/USER:0.003773 Right/BOT:0.025943 Ratio:0.15)
+  18. 'I'm' -> BOT (Left/USER:0.003529 Right/BOT:0.031182 Ratio:0.11)
+  19. 'always' -> BOT (Left/USER:0.004023 Right/BOT:0.036772 Ratio:0.11)
+  20. 'happy' -> BOT (Left/USER:0.003536 Right/BOT:0.021071 Ratio:0.17)
+✅ Speaker detection complete: 16 speaker turns
+📊 Extracting audio metrics...
+✅ Metrics extracted: {
+  "metrics_version": "1.0",
+  "speaking_pace_user_wpm": 114.7,
+  "speaking_pace_bot_wpm": 192.0,
+  "talk_ratio_user_pct": 49.1,
+  "talk_ratio_bot_pct": 50.9,
+  "filler_words_count": 2,
+  "filler_words_per_minute": 1.0,
+  "avg_user_energy_rms": 0.007258,
+  "avg_response_latency_ms": 1025.7,
+  "conversation_duration_seconds": 120.38
+}
+📤 Calling WordPress callback: https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+📦 Payload: object_key=uploads/session-1764713447728-17bdf63d479fcef6/1764713594-Govsdk.webm, session_id=session-1764713447728-17bdf63d479fcef6, transcript length=1699
+✅ Callback response: 200
+INFO:     127.0.0.1:48444 - "POST /process-s3 HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1302424]
+INFO:     Started server process [1384042]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:9001 (Press CTRL+C to quit)
+🎯 Analyzing stereo audio for speaker detection...
+🎯 Audio file path: /tmp/st-sidecar-28__plhv/1764472790-us1cmT.webm
+🎯 File exists: True
+🎯 File size: 1248479
+✅ Converted WebM to WAV: 13664022 bytes
+✅ Stereo audio detected: (2, 3415986)
+📊 Overall channel energy - Left(USER): 0.001773, Right(BOT): 0.025131
+🔍 First 20 words with energy values:
+  1. 'Hello' -> USER (Left/USER:0.002236 Right/BOT:0.000000 Ratio:999.00)
+  2. 'how' -> USER (Left/USER:0.003420 Right/BOT:0.000000 Ratio:999.00)
+  3. 'are' -> USER (Left/USER:0.004410 Right/BOT:0.000000 Ratio:999.00)
+  4. 'you' -> USER (Left/USER:0.003152 Right/BOT:0.000000 Ratio:999.00)
+  5. 'I'm' -> BOT (Left/USER:0.000510 Right/BOT:0.054418 Ratio:0.01)
+  6. 'doing' -> BOT (Left/USER:0.000520 Right/BOT:0.088650 Ratio:0.01)
+  7. 'wonderfully' -> BOT (Left/USER:0.000560 Right/BOT:0.058058 Ratio:0.01)
+  8. 'Thank' -> BOT (Left/USER:0.000314 Right/BOT:0.031856 Ratio:0.01)
+  9. 'you' -> BOT (Left/USER:0.000319 Right/BOT:0.023849 Ratio:0.01)
+  10. 'for' -> BOT (Left/USER:0.000371 Right/BOT:0.030850 Ratio:0.01)
+  11. 'asking' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  12. 'It's' -> BOT (Left/USER:0.000569 Right/BOT:0.048583 Ratio:0.01)
+  13. 'always' -> BOT (Left/USER:0.000420 Right/BOT:0.049243 Ratio:0.01)
+  14. 'a' -> BOT (Left/USER:0.000420 Right/BOT:0.023162 Ratio:0.02)
+  15. 'good' -> BOT (Left/USER:0.000464 Right/BOT:0.024658 Ratio:0.02)
+  16. 'day' -> BOT (Left/USER:0.000361 Right/BOT:0.027694 Ratio:0.01)
+  17. 'when' -> BOT (Left/USER:0.000323 Right/BOT:0.025902 Ratio:0.01)
+  18. 'I' -> BOT (Left/USER:0.000425 Right/BOT:0.031277 Ratio:0.01)
+  19. 'get' -> BOT (Left/USER:0.000423 Right/BOT:0.013087 Ratio:0.03)
+  20. 'to' -> BOT (Left/USER:0.000372 Right/BOT:0.034361 Ratio:0.01)
+✅ Speaker detection complete: 8 speaker turns
+📊 Extracting audio metrics...
+✅ Metrics extracted: {
+  "metrics_version": "2.0",
+  "speaking_pace_user_wpm": 84.5,
+  "speaking_pace_bot_wpm": 147.6,
+  "talk_ratio_user_pct": 35.2,
+  "talk_ratio_bot_pct": 64.8,
+  "filler_words_count": 2,
+  "filler_words_per_minute": 1.86,
+  "avg_user_energy_rms": 0.002954,
+  "avg_response_latency_ms": 1730.0,
+  "conversation_duration_seconds": 64.6,
+  "user_turn_count": 4,
+  "avg_turn_length_sec": 2.8,
+  "max_turn_length_sec": 8.0,
+  "long_monologues_count": 0,
+  "question_count_total": 0,
+  "question_count_open": 0,
+  "question_count_closed": 0,
+  "question_ratio_open_pct": 0,
+  "silence_pct": 46.5,
+  "long_pauses_count": 2,
+  "avg_pause_duration_sec": 1.43,
+  "pitch_mean_hz": 1427.6,
+  "pitch_stddev_hz": 760.5,
+  "pitch_range_hz": 1944.1
+}
+📤 Calling WordPress callback: https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+📦 Payload: object_key=uploads/session-1764472703458-d246df59a9fe592c/1764472790-us1cmT.webm, session_id=session-1764472703458-d246df59a9fe592c, transcript length=732
+✅ Callback response: 200
+INFO:     127.0.0.1:36484 - "POST /process-s3 HTTP/1.1" 200 OK
+🎯 Analyzing stereo audio for speaker detection...
+🎯 Audio file path: /tmp/st-sidecar-8v0e1e2v/1764717459-JYTwyl.webm
+🎯 File exists: True
+🎯 File size: 2070429
+✅ Converted WebM to WAV: 22660422 bytes
+✅ Stereo audio detected: (2, 5665086)
+📊 Overall channel energy - Left(USER): 0.010568, Right(BOT): 0.028967
+🔍 First 20 words with energy values:
+  1. 'Hello' -> USER (Left/USER:0.018397 Right/BOT:0.000000 Ratio:999.00)
+  2. 'how' -> USER (Left/USER:0.021813 Right/BOT:0.000000 Ratio:999.00)
+  3. 'are' -> USER (Left/USER:0.021011 Right/BOT:0.000000 Ratio:999.00)
+  4. 'you' -> USER (Left/USER:0.013060 Right/BOT:0.000000 Ratio:999.00)
+  5. 'today' -> USER (Left/USER:0.012568 Right/BOT:0.000000 Ratio:999.00)
+  6. 'I'm' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  7. 'doing' -> BOT (Left/USER:0.002910 Right/BOT:0.080894 Ratio:0.04)
+  8. 'wonderfully' -> BOT (Left/USER:0.003888 Right/BOT:0.055160 Ratio:0.07)
+  9. 'Thank' -> BOT (Left/USER:0.002971 Right/BOT:0.049747 Ratio:0.06)
+  10. 'you' -> BOT (Left/USER:0.002885 Right/BOT:0.027813 Ratio:0.10)
+  11. 'for' -> BOT (Left/USER:0.003005 Right/BOT:0.036691 Ratio:0.08)
+  12. 'asking' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  13. 'It's' -> BOT (Left/USER:0.003016 Right/BOT:0.031527 Ratio:0.10)
+  14. 'always' -> BOT (Left/USER:0.003012 Right/BOT:0.052972 Ratio:0.06)
+  15. 'a' -> BOT (Left/USER:0.003064 Right/BOT:0.035269 Ratio:0.09)
+  16. 'good' -> BOT (Left/USER:0.002770 Right/BOT:0.038779 Ratio:0.07)
+  17. 'day' -> BOT (Left/USER:0.003179 Right/BOT:0.038610 Ratio:0.08)
+  18. 'when' -> BOT (Left/USER:0.003278 Right/BOT:0.020637 Ratio:0.16)
+  19. 'I' -> BOT (Left/USER:0.002850 Right/BOT:0.019706 Ratio:0.14)
+  20. 'get' -> BOT (Left/USER:0.002868 Right/BOT:0.028960 Ratio:0.10)
+✅ Speaker detection complete: 18 speaker turns
+📊 Extracting audio metrics...
+✅ Metrics extracted: {
+  "metrics_version": "2.0",
+  "speaking_pace_user_wpm": 117.1,
+  "speaking_pace_bot_wpm": 176.5,
+  "talk_ratio_user_pct": 41.1,
+  "talk_ratio_bot_pct": 58.9,
+  "filler_words_count": 1,
+  "filler_words_per_minute": 0.48,
+  "avg_user_energy_rms": 0.015741,
+  "avg_response_latency_ms": 1176.7,
+  "conversation_duration_seconds": 124.68,
+  "user_turn_count": 9,
+  "avg_turn_length_sec": 4.1,
+  "max_turn_length_sec": 12.0,
+  "long_monologues_count": 0,
+  "question_count_total": 0,
+  "question_count_open": 0,
+  "question_count_closed": 0,
+  "question_ratio_open_pct": 0,
+  "silence_pct": 32.9,
+  "long_pauses_count": 0,
+  "avg_pause_duration_sec": 0.87,
+  "pitch_mean_hz": 90.4,
+  "pitch_stddev_hz": 49.7,
+  "pitch_range_hz": 273.9
+}
+📤 Calling WordPress callback: https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+📦 Payload: object_key=uploads/session-1764717321517-2f51806fb5bf2e56/1764717459-JYTwyl.webm, session_id=session-1764717321517-2f51806fb5bf2e56, transcript length=1779
+✅ Callback response: 200
+INFO:     127.0.0.1:39552 - "POST /process-s3 HTTP/1.1" 200 OK
+🎯 Analyzing stereo audio for speaker detection...
+🎯 Audio file path: /tmp/st-sidecar-c1zhyd_9/1764717706-AqE7iY.webm
+🎯 File exists: True
+🎯 File size: 2251258
+✅ Converted WebM to WAV: 24639630 bytes
+✅ Stereo audio detected: (2, 6159888)
+📊 Overall channel energy - Left(USER): 0.010198, Right(BOT): 0.024858
+🔍 First 20 words with energy values:
+  1. 'Isn't' -> USER (Left/USER:0.008977 Right/BOT:0.000000 Ratio:999.00)
+  2. 'today' -> USER (Left/USER:0.011674 Right/BOT:0.000000 Ratio:999.00)
+  3. 'a' -> USER (Left/USER:0.008955 Right/BOT:0.000000 Ratio:999.00)
+  4. 'great' -> USER (Left/USER:0.006736 Right/BOT:0.000000 Ratio:999.00)
+  5. 'day' -> USER (Left/USER:0.005894 Right/BOT:0.000000 Ratio:999.00)
+  6. 'Oh' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  7. 'it' -> BOT (Left/USER:0.004175 Right/BOT:0.060661 Ratio:0.07)
+  8. 'absolutely' -> BOT (Left/USER:0.003861 Right/BOT:0.085938 Ratio:0.04)
+  9. 'is' -> BOT (Left/USER:0.003629 Right/BOT:0.042705 Ratio:0.08)
+  10. 'what' -> BOT (Left/USER:0.003688 Right/BOT:0.020814 Ratio:0.18)
+  11. 'a' -> BOT (Left/USER:0.004446 Right/BOT:0.044166 Ratio:0.10)
+  12. 'wonderful' -> BOT (Left/USER:0.003547 Right/BOT:0.031484 Ratio:0.11)
+  13. 'way' -> BOT (Left/USER:0.003720 Right/BOT:0.029776 Ratio:0.12)
+  14. 'to' -> BOT (Left/USER:0.003265 Right/BOT:0.015062 Ratio:0.22)
+  15. 'start' -> BOT (Left/USER:0.003203 Right/BOT:0.030200 Ratio:0.11)
+  16. 'a' -> BOT (Left/USER:0.003471 Right/BOT:0.019648 Ratio:0.18)
+  17. 'conversation' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  18. 'I' -> BOT (Left/USER:0.003699 Right/BOT:0.021854 Ratio:0.17)
+  19. 'just' -> BOT (Left/USER:0.008391 Right/BOT:0.041074 Ratio:0.20)
+  20. 'love' -> BOT (Left/USER:0.006334 Right/BOT:0.026162 Ratio:0.24)
+✅ Speaker detection complete: 14 speaker turns
+📊 Extracting audio metrics...
+✅ Metrics extracted: {
+  "metrics_version": "2.0",
+  "speaking_pace_user_wpm": 132.8,
+  "speaking_pace_bot_wpm": 206.1,
+  "talk_ratio_user_pct": 44.2,
+  "talk_ratio_bot_pct": 55.8,
+  "filler_words_count": 1,
+  "filler_words_per_minute": 0.45,
+  "avg_user_energy_rms": 0.014615,
+  "avg_response_latency_ms": 1240.0,
+  "conversation_duration_seconds": 134.0,
+  "user_turn_count": 7,
+  "avg_turn_length_sec": 6.6,
+  "max_turn_length_sec": 16.3,
+  "long_monologues_count": 0,
+  "question_count_total": 0,
+  "question_count_open": 0,
+  "question_count_closed": 0,
+  "question_ratio_open_pct": 0,
+  "silence_pct": 21.0,
+  "long_pauses_count": 0,
+  "avg_pause_duration_sec": 0.66,
+  "pitch_mean_hz": 76.9,
+  "pitch_stddev_hz": 20.0,
+  "pitch_range_hz": 162.4
+}
+📤 Calling WordPress callback: https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+📦 Payload: object_key=uploads/session-1764717556761-9966723db6a2029f/1764717706-AqE7iY.webm, session_id=session-1764717556761-9966723db6a2029f, transcript length=2134
+✅ Callback response: 200
+🎯 Analyzing stereo audio for speaker detection...
+🎯 Audio file path: /tmp/st-sidecar-blrx06vh/1764717924-fB6Ldh.webm
+🎯 File exists: True
+🎯 File size: 1955356
+✅ Converted WebM to WAV: 21400926 bytes
+✅ Stereo audio detected: (2, 5350212)
+📊 Overall channel energy - Left(USER): 0.005574, Right(BOT): 0.024544
+🔍 First 20 words with energy values:
+  1. 'Hello' -> USER (Left/USER:0.012009 Right/BOT:0.000000 Ratio:999.00)
+  2. 'hello' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  3. 'hello' -> USER (Left/USER:0.003090 Right/BOT:0.000000 Ratio:999.00)
+  4. 'Well' -> BOT (Left/USER:0.003435 Right/BOT:0.026468 Ratio:0.13)
+  5. 'hello' -> BOT (Left/USER:0.003061 Right/BOT:0.083715 Ratio:0.04)
+  6. 'there' -> BOT (Left/USER:0.002939 Right/BOT:0.056607 Ratio:0.05)
+  7. 'yourself' -> BOT (Left/USER:0.003076 Right/BOT:0.040800 Ratio:0.08)
+  8. 'It's' -> BOT (Left/USER:0.003435 Right/BOT:0.017543 Ratio:0.20)
+  9. 'lovely' -> BOT (Left/USER:0.003104 Right/BOT:0.047088 Ratio:0.07)
+  10. 'to' -> BOT (Left/USER:0.003122 Right/BOT:0.026026 Ratio:0.12)
+  11. 'hear' -> BOT (Left/USER:0.003175 Right/BOT:0.045986 Ratio:0.07)
+  12. 'from' -> BOT (Left/USER:0.003154 Right/BOT:0.024994 Ratio:0.13)
+  13. 'you' -> BOT (Left/USER:0.003190 Right/BOT:0.024983 Ratio:0.13)
+  14. 'What' -> BOT (Left/USER:0.003219 Right/BOT:0.034268 Ratio:0.09)
+  15. 'can' -> BOT (Left/USER:0.003629 Right/BOT:0.028030 Ratio:0.13)
+  16. 'I' -> BOT (Left/USER:0.003622 Right/BOT:0.033006 Ratio:0.11)
+  17. 'do' -> BOT (Left/USER:0.003229 Right/BOT:0.040626 Ratio:0.08)
+  18. 'for' -> BOT (Left/USER:0.003596 Right/BOT:0.022390 Ratio:0.16)
+  19. 'you' -> BOT (Left/USER:0.003231 Right/BOT:0.030473 Ratio:0.11)
+  20. 'on' -> BOT (Left/USER:0.003461 Right/BOT:0.030632 Ratio:0.11)
+✅ Speaker detection complete: 12 speaker turns
+📊 Extracting audio metrics...
+✅ Metrics extracted: {
+  "metrics_version": "2.0",
+  "speaking_pace_user_wpm": 99.4,
+  "speaking_pace_bot_wpm": 173.5,
+  "talk_ratio_user_pct": 43.8,
+  "talk_ratio_bot_pct": 56.2,
+  "filler_words_count": 1,
+  "filler_words_per_minute": 0.51,
+  "avg_user_energy_rms": 0.007453,
+  "avg_response_latency_ms": 1023.3,
+  "conversation_duration_seconds": 117.0,
+  "user_turn_count": 6,
+  "avg_turn_length_sec": 7.7,
+  "max_turn_length_sec": 15.2,
+  "long_monologues_count": 0,
+  "question_count_total": 0,
+  "question_count_open": 0,
+  "question_count_closed": 0,
+  "question_ratio_open_pct": 0,
+  "silence_pct": 20.5,
+  "long_pauses_count": 2,
+  "avg_pause_duration_sec": 0.73,
+  "pitch_mean_hz": 91.4,
+  "pitch_stddev_hz": 27.5,
+  "pitch_range_hz": 131.7
+}
+📤 Calling WordPress callback: https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+📦 Payload: object_key=uploads/session-1764717794324-13357f6b3d3ad885/1764717924-fB6Ldh.webm, session_id=session-1764717794324-13357f6b3d3ad885, transcript length=1555
+✅ Callback response: 200
+INFO:     127.0.0.1:39152 - "POST /process-s3 HTTP/1.1" 200 OK
+🎯 Analyzing stereo audio for speaker detection...
+🎯 Audio file path: /tmp/st-sidecar-vnz05te3/1764722711-7Hi2HL.webm
+🎯 File exists: True
+🎯 File size: 1133406
+✅ Converted WebM to WAV: 12404526 bytes
+✅ Stereo audio detected: (2, 3101112)
+📊 Overall channel energy - Left(USER): 0.006066, Right(BOT): 0.028035
+🔍 First 20 words with energy values:
+  1. 'Hello' -> USER (Left/USER:0.011238 Right/BOT:0.000000 Ratio:999.00)
+  2. 'hello' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  3. 'hello' -> USER (Left/USER:0.006627 Right/BOT:0.000000 Ratio:999.00)
+  4. 'hello' -> UNKNOWN (Left/USER:0.000000 Right/BOT:0.000000 Ratio:999.00)
+  5. 'Well' -> BOT (Left/USER:0.003455 Right/BOT:0.106582 Ratio:0.03)
+  6. 'hello' -> BOT (Left/USER:0.003588 Right/BOT:0.078148 Ratio:0.05)
+  7. 'there' -> BOT (Left/USER:0.003201 Right/BOT:0.057849 Ratio:0.06)
+  8. 'It's' -> BOT (Left/USER:0.003029 Right/BOT:0.023448 Ratio:0.13)
+  9. 'so' -> BOT (Left/USER:0.002908 Right/BOT:0.031231 Ratio:0.09)
+  10. 'nice' -> BOT (Left/USER:0.003030 Right/BOT:0.010629 Ratio:0.29)
+  11. 'to' -> BOT (Left/USER:0.002879 Right/BOT:0.026841 Ratio:0.11)
+  12. 'hear' -> BOT (Left/USER:0.002939 Right/BOT:0.035461 Ratio:0.08)
+  13. 'from' -> BOT (Left/USER:0.004739 Right/BOT:0.027239 Ratio:0.17)
+  14. 'you' -> BOT (Left/USER:0.003282 Right/BOT:0.029402 Ratio:0.11)
+  15. 'What' -> BOT (Left/USER:0.002914 Right/BOT:0.020876 Ratio:0.14)
+  16. 'can' -> BOT (Left/USER:0.003005 Right/BOT:0.026019 Ratio:0.12)
+  17. 'I' -> BOT (Left/USER:0.002978 Right/BOT:0.034686 Ratio:0.09)
+  18. 'do' -> BOT (Left/USER:0.002932 Right/BOT:0.036524 Ratio:0.08)
+  19. 'for' -> BOT (Left/USER:0.003450 Right/BOT:0.037286 Ratio:0.09)
+  20. 'you' -> BOT (Left/USER:0.003055 Right/BOT:0.035814 Ratio:0.09)
+✅ Speaker detection complete: 10 speaker turns
+📊 Extracting audio metrics...
+✅ Metrics extracted: {
+  "metrics_version": "2.0",
+  "speaking_pace_user_wpm": 84.6,
+  "speaking_pace_bot_wpm": 186.1,
+  "talk_ratio_user_pct": 41.6,
+  "talk_ratio_bot_pct": 58.4,
+  "filler_words_count": 6,
+  "filler_words_per_minute": 6.04,
+  "avg_user_energy_rms": 0.008823,
+  "avg_response_latency_ms": 1725.0,
+  "conversation_duration_seconds": 59.64,
+  "user_turn_count": 5,
+  "avg_turn_length_sec": 3.1,
+  "max_turn_length_sec": 7.7,
+  "long_monologues_count": 0,
+  "question_count_total": 0,
+  "question_count_open": 0,
+  "question_count_closed": 0,
+  "question_ratio_open_pct": 0,
+  "silence_pct": 34.3,
+  "long_pauses_count": 2,
+  "avg_pause_duration_sec": 1.08,
+  "pitch_mean_hz": 87.1,
+  "pitch_stddev_hz": 32.8,
+  "pitch_range_hz": 131.7
+}
+📤 Calling WordPress callback: https://dev.salestrainer.pro/wp-json/salestrainer/v1/upload-complete
+📦 Payload: object_key=uploads/session-1764722630733-7a06aa8379d214cf/1764722711-7Hi2HL.webm, session_id=session-1764722630733-7a06aa8379d214cf, transcript length=762
+✅ Callback response: 200
+INFO:     127.0.0.1:48666 - "POST /process-s3 HTTP/1.1" 200 OK
