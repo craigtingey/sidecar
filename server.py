@@ -677,10 +677,9 @@ async def process_s3(payload: ProcessRequest):
                 headers = {
                     "Content-Type": "application/json",
                 }
-                # Optionally send token as header (redundant but safe fallback)
+                # Send token as custom header only (NOT as Bearer token - JWT plugin interferes)
                 if WP_SERVER_TOKEN and SEND_X_SERVER_TOKEN_HEADER:
                     headers["X-Server-Token"] = WP_SERVER_TOKEN
-                    headers["Authorization"] = f"Bearer {WP_SERVER_TOKEN}"
                 async with session.post(callback, json=result, headers=headers, timeout=30) as resp:
                     status = resp.status
                     text = await resp.text()
