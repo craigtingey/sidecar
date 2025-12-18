@@ -38,3 +38,7 @@ Thumbs.db
 test-*.sh
 tmp/
 temp/
+
+# Logs
+*.log
+sidecar.log
