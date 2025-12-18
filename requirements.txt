@@ -4,3 +4,8 @@ boto3
 aiohttp
 python-multipart
 pydantic
+aiofiles
+librosa
+numpy
+pydub
+ffmpeg-python

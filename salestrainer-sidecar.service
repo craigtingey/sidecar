@@ -1,0 +1,23 @@
+[Unit]
+Description=SalesTrainer Sidecar FastAPI Service
+After=network.target
+
+[Service]
+Type=simple
+User=ctingey
+Group=www-data
+WorkingDirectory=/var/www/salestrainer-dev/sidecar
+Environment="PATH=/var/www/salestrainer-dev/sidecar/venv/bin:/usr/local/bin:/usr/bin:/bin"
+EnvironmentFile=/var/www/salestrainer-dev/sidecar/.env
+ExecStart=/var/www/salestrainer-dev/sidecar/venv/bin/uvicorn server:app --host 127.0.0.1 --port 9001
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/www/salestrainer-dev/sidecar/sidecar.log
+StandardError=append:/var/www/salestrainer-dev/sidecar/sidecar.log
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
