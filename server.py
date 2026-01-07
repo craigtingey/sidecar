@@ -540,11 +540,11 @@ async def process_s3(payload: ProcessRequest):
                         # If both energies are very low, it's silence/ambiguous
                         total_energy = left_energy + right_energy
                         
-                        if total_energy < 0.00005:  # Near silence
+                        if total_energy < 0.0001:  # Near silence (increased threshold)
                             speaker = "UNKNOWN"
-                        elif left_energy > right_energy * 1.15:  # Left is louder (15% threshold)
+                        elif left_energy > right_energy * 1.4:  # Left is louder (40% threshold to reduce false switches)
                             speaker = "USER"  # Left = USER
-                        elif right_energy > left_energy * 1.15:  # Right is louder (15% threshold)
+                        elif right_energy > left_energy * 1.4:  # Right is louder (40% threshold)
                             speaker = "BOT"   # Right = BOT
                         else:
                             # Too close, mark as UNKNOWN to be smoothed later
@@ -562,7 +562,7 @@ async def process_s3(payload: ProcessRequest):
                 
                 # Apply smoothing: fix UNKNOWN words by looking at neighbors
                 smoothed_words = []
-                window_size = 3  # Look at 3 words before and after
+                window_size = 5  # Look at 5 words before and after (increased for better context)
                 
                 for i, (speaker, word, left_e, right_e) in enumerate(labeled_words):
                     if speaker == "UNKNOWN":
@@ -592,12 +592,38 @@ async def process_s3(payload: ProcessRequest):
                     
                     smoothed_words.append((speaker, word, left_e, right_e))
                 
+                # Apply temporal grouping: words within 0.5s should likely be same speaker
+                # This helps prevent last word misassignment when energy drops at utterance end
+                temporally_grouped = []
+                for i, (speaker, word, left_e, right_e) in enumerate(smoothed_words):
+                    # Get timing info for this word
+                    word_data = words[i] if i < len(words) else {}
+                    current_time = word_data.get('start', 0)
+                    
+                    # Look back at previous word timing
+                    if temporally_grouped and i > 0:
+                        prev_word_data = words[i-1] if i-1 < len(words) else {}
+                        prev_time = prev_word_data.get('end', 0)
+                        prev_speaker = temporally_grouped[-1][0]
+                        
+                        # If words are within 0.5s and confidence is low (UNKNOWN or weak signal),
+                        # keep same speaker as previous word
+                        time_gap = current_time - prev_time
+                        if time_gap < 0.5 and speaker == "UNKNOWN":
+                            speaker = prev_speaker
+                        elif time_gap < 0.3:  # Very close words, likely same speaker
+                            # Only switch if energy difference is very strong
+                            if abs(left_e - right_e) < max(left_e, right_e) * 0.5:
+                                speaker = prev_speaker
+                    
+                    temporally_grouped.append((speaker, word, left_e, right_e))
+                
                 # Format transcript with speaker labels
                 formatted_lines = []
                 current_speaker = None
                 current_text = []
                 
-                for speaker, word, left_e, right_e in smoothed_words:
+                for speaker, word, left_e, right_e in temporally_grouped:
                     if speaker != current_speaker:
                         # Save previous line
                         if current_speaker and current_text:
@@ -659,6 +685,14 @@ async def process_s3(payload: ProcessRequest):
         "size_bytes": file_stat.st_size,
         "transcript": formatted_transcript,
     }
+    
+    # Calculate transcript duration from word timestamps
+    if words and len(words) > 0:
+        first_word_start = words[0].get('start', 0)
+        last_word_end = words[-1].get('end', 0)
+        duration_seconds = int(last_word_end - first_word_start)
+        if duration_seconds > 0:
+            result["duration"] = duration_seconds
     
     # Add audio metrics if available (Phase 1)
     if audio_metrics:
