@@ -606,14 +606,17 @@ async def process_s3(payload: ProcessRequest):
                         prev_time = prev_word_data.get('end', 0)
                         prev_speaker = temporally_grouped[-1][0]
                         
-                        # If words are within 0.5s and confidence is low (UNKNOWN or weak signal),
-                        # keep same speaker as previous word
+                        # Only apply temporal grouping if confidence is truly low (UNKNOWN)
+                        # Don't override energy-based decisions unless there's a clear continuity reason
                         time_gap = current_time - prev_time
-                        if time_gap < 0.5 and speaker == "UNKNOWN":
+                        if time_gap < 0.2 and speaker == "UNKNOWN":
+                            # Very close words with no clear speaker - use previous
                             speaker = prev_speaker
-                        elif time_gap < 0.3:  # Very close words, likely same speaker
-                            # Only switch if energy difference is very strong
-                            if abs(left_e - right_e) < max(left_e, right_e) * 0.5:
+                        elif time_gap < 0.15 and speaker != prev_speaker:
+                            # Extremely close words (<150ms gap) - likely same utterance
+                            # But only override if the energy split was close (within 30%)
+                            energy_ratio = max(left_e, right_e) / (min(left_e, right_e) + 1e-10)
+                            if energy_ratio < 1.3:  # Energies are close, trust timing over energy
                                 speaker = prev_speaker
                     
                     temporally_grouped.append((speaker, word, left_e, right_e))
