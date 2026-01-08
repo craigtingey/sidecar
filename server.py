@@ -655,67 +655,90 @@ async def process_s3(payload: ProcessRequest):
                     
                     temporally_grouped.append((speaker, word, left_e, right_e))
                 
-                # Format transcript with speaker labels - PRESERVE PUNCTUATION
-                # Strategy: Match words to original punctuated transcript and insert punctuation
+                # Format transcript with speaker labels - PRESERVE ALL PUNCTUATION
+                # Strategy: Build word-to-position map from original transcript, extract punctuation
                 formatted_lines = []
                 current_speaker = None
-                current_words = []
+                current_line_parts = []
                 
-                # Build a mapping of word positions to include punctuation
-                original_words_lower = transcript_text.lower().split()
+                # Preprocess: Create a map of word positions in original text with punctuation
+                # Split original transcript into tokens (words + punctuation)
+                import string
+                transcript_lower = transcript_text.lower()
+                
+                # Track position in original transcript for each word
+                word_positions = []
+                search_pos = 0
                 
                 for i, (speaker, word, left_e, right_e) in enumerate(temporally_grouped):
+                    word_lower = word.strip().lower()
+                    if not word_lower:
+                        continue
+                    
+                    # Find this word in the original transcript starting from search_pos
+                    find_pos = transcript_lower.find(word_lower, search_pos)
+                    
+                    if find_pos >= 0:
+                        # Found the word, now look for punctuation after it
+                        word_end_pos = find_pos + len(word_lower)
+                        
+                        # Extract any immediately following punctuation
+                        punct = ''
+                        j = word_end_pos
+                        while j < len(transcript_text) and j < word_end_pos + 3:
+                            char = transcript_text[j]
+                            if char in '.,!?;:\'")-':
+                                punct += char
+                                j += 1
+                            elif char.isspace():
+                                j += 1
+                                break  # Stop at first space after punctuation
+                            else:
+                                break  # Stop at non-punct, non-space
+                        
+                        word_positions.append({
+                            'word': word.strip(),
+                            'punct': punct,
+                            'speaker': speaker
+                        })
+                        
+                        # Update search position for next word
+                        search_pos = word_end_pos
+                    else:
+                        # Couldn't find word in transcript - just add it without punctuation
+                        word_positions.append({
+                            'word': word.strip(),
+                            'punct': '',
+                            'speaker': speaker
+                        })
+                
+                # Now build formatted transcript with speaker labels and punctuation
+                current_speaker = None
+                current_line_parts = []
+                
+                for item in word_positions:
+                    speaker = item['speaker']
+                    word = item['word']
+                    punct = item['punct']
+                    
                     if speaker != current_speaker:
-                        # Save previous line with punctuation
-                        if current_speaker and current_words:
-                            line_text = ' '.join(current_words).strip()
+                        # Save previous line
+                        if current_speaker and current_line_parts:
+                            line_text = ' '.join(current_line_parts).strip()
                             formatted_lines.append(f"[{current_speaker}]: {line_text}")
                         # Start new line
                         current_speaker = speaker
-                        current_words = [word.strip()]
+                        current_line_parts = [word + punct]
                     else:
-                        current_words.append(word.strip())
-                    
-                    # Check if we need to add punctuation after this word
-                    # Look ahead in words list to see if there's a speaker change or end
-                    is_last_word = (i == len(temporally_grouped) - 1)
-                    is_speaker_change = (i < len(temporally_grouped) - 1 and temporally_grouped[i+1][0] != speaker)
-                    
-                    if (is_last_word or is_speaker_change) and current_words:
-                        # Try to find punctuation in original transcript
-                        # Join current words and look for them in original text
-                        words_joined = ' '.join(current_words).strip()
-                        words_lower = words_joined.lower()
-                        
-                        # Search for this phrase in original transcript
-                        transcript_lower = transcript_text.lower()
-                        phrase_pos = transcript_lower.find(words_lower)
-                        
-                        if phrase_pos >= 0:
-                            # Found the phrase, check what comes after it
-                            end_pos = phrase_pos + len(words_lower)
-                            # Look for punctuation within next 3 characters
-                            lookahead = transcript_text[end_pos:end_pos+3] if end_pos < len(transcript_text) else ""
-                            
-                            # Extract any punctuation marks
-                            punct = ''
-                            for char in lookahead:
-                                if char in '.,!?;:':
-                                    punct += char
-                                elif not char.isspace():
-                                    break  # Stop at first non-punct, non-space
-                            
-                            if punct and current_words:
-                                # Add punctuation to last word
-                                current_words[-1] = current_words[-1] + punct
+                        current_line_parts.append(word + punct)
                 
                 # Add final line
-                if current_speaker and current_words:
-                    line_text = ' '.join(current_words).strip()
+                if current_speaker and current_line_parts:
+                    line_text = ' '.join(current_line_parts).strip()
                     formatted_lines.append(f"[{current_speaker}]: {line_text}")
                 
                 formatted_transcript = "\n".join(formatted_lines)
-                print(f"✅ Speaker detection complete: {len(formatted_lines)} speaker turns (with punctuation preserved)")
+                print(f"✅ Speaker detection complete: {len(formatted_lines)} speaker turns (full punctuation preserved)")
             else:
                 print(f"⚠️ Audio is mono, skipping speaker detection")
             
