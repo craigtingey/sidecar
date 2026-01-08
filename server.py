@@ -297,39 +297,73 @@ def extract_core_audio_metrics(audio, sample_rate, words, labeled_words, include
                 user_lines.append(' '.join(current_line_words))
             
             # Detect questions
+            # Question patterns - work WITHOUT punctuation
+            # Open-ended question words/phrases
             open_patterns = [
                 r'\b(who|what|when|where|why|how)\b',
                 r'\btell me (about|more)\b',
                 r'\bwalk me through\b',
                 r'\bhelp me understand\b',
-                r'\bcan you explain\b'
+                r'\bcan you explain\b',
+                r'\bdescribe\b',
+                r'\bshare with me\b'
             ]
             
+            # Closed question starters (yes/no questions)
             closed_patterns = [
-                r'^\s*(do|does|did|is|are|was|were|can|could|would|will|should|have|has)\b',
-                r'\bright\?',
-                r'\bcorrect\?'
+                r'^\s*(do|does|did|is|are|was|were|can|could|would|will|should|have|has|had)\b',
+                r'\bright$',
+                r'\bcorrect$',
+                r'\bokay$',
+                r'\btrue$',
+                r'\bagree$'
             ]
             
-            questions = [line for line in user_lines if '?' in line]
+            # Detect questions WITHOUT relying on '?' punctuation
+            # Strategy: Check for question words/patterns at start or throughout the line
+            questions = []
             open_questions = 0
             closed_questions = 0
             
-            for q in questions:
-                q_lower = q.lower()
-                is_open = any(re.search(pattern, q_lower) for pattern in open_patterns)
-                is_closed = any(re.search(pattern, q_lower) for pattern in closed_patterns)
+            for line in user_lines:
+                line_lower = line.lower().strip()
+                if not line_lower:
+                    continue
                 
-                if is_open and not is_closed:
-                    open_questions += 1
+                # Check for question markers (with or without ?)
+                has_question_mark = '?' in line
+                
+                # Check patterns
+                is_open = any(re.search(pattern, line_lower) for pattern in open_patterns)
+                is_closed = any(re.search(pattern, line_lower) for pattern in closed_patterns)
+                
+                # Classify as question if:
+                # 1. Has ? mark, OR
+                # 2. Starts with open pattern (who/what/why/etc), OR  
+                # 3. Starts with closed pattern (do/does/is/are/etc)
+                is_question = False
+                
+                if has_question_mark:
+                    is_question = True
+                elif is_open:
+                    is_question = True
                 elif is_closed:
-                    closed_questions += 1
-                elif not is_open and not is_closed:
-                    # Ambiguous - default to closed if starts with verb
-                    if re.match(r'^\s*(do|is|can|are|did|will|should)', q_lower):
+                    is_question = True
+                
+                if is_question:
+                    questions.append(line)
+                    
+                    # Categorize as open or closed
+                    if is_open and not is_closed:
+                        open_questions += 1
+                    elif is_closed and not is_open:
                         closed_questions += 1
                     else:
-                        open_questions += 1
+                        # Ambiguous - default based on first word
+                        if re.match(r'^\s*(do|does|did|is|are|was|were|can|could|would|will|should|have|has)\b', line_lower):
+                            closed_questions += 1
+                        else:
+                            open_questions += 1
             
             total_questions = len(questions)
             metrics["question_count_total"] = total_questions
